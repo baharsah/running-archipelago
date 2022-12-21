@@ -1,8 +1,8 @@
 package migration
 
 import (
+	"baharsah/helper/mysql"
 	"baharsah/models"
-	"baharsah/pkg/mysql"
 	"log"
 )
 
