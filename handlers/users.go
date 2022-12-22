@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	authDito "baharsah/dito/auth"
 	resultDito "baharsah/dito/result"
 	usersdito "baharsah/dito/users"
 	"baharsah/helper/bcrypt"
@@ -43,7 +44,7 @@ func (h *handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) CreateUser(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
-	request := new(usersdito.RegisterRequest)
+	request := new(authDito.RegisterRequest)
 
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		res.WriteHeader(http.StatusBadRequest)
