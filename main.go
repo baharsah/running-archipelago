@@ -17,6 +17,6 @@ func main() {
 	r := mux.NewRouter()
 	router.Router(r.PathPrefix("/api/v1").Subrouter())
 
-	http.ListenAndServe("localhost:5000", r)
+	http.ListenAndServe("localhost:5001", r)
 	log.Println("Server Running!")
 }

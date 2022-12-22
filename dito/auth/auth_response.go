@@ -1,1 +1,1 @@
-package authDito
+package authdito
