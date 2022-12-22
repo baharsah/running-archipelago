@@ -9,3 +9,5 @@ type Transactions struct {
 	ApprovalID    int
 	Quantity      uint
 }
+
+// disini dikirim keluar
