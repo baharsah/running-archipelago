@@ -1,4 +1,4 @@
-package dito
+package resultDito
 
 type SuccessResult struct {
 	Code int         `json:"code"`
