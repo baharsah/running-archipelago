@@ -12,7 +12,10 @@ import (
 func UserRoute(r *mux.Router) {
 	userRepo := repo.RepoUser(mysql.DB)
 	h := handlers.HandlerUser(userRepo)
-	r.HandleFunc("/users", h.GetUsers).Methods(http.MethodGet)
+	// I'll use this if needed because IDK
+	// r.HandleFunc("/users", h.GetUsers).Methods(http.MethodGet)
+	r.HandleFunc("/login", h.AuthUser).Methods(http.MethodPost)
+
 	r.HandleFunc("/register", h.CreateUser).Methods(http.MethodPost)
 
 }

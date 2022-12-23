@@ -5,14 +5,17 @@ import (
 	resultDito "baharsah/dito/result"
 	usersdito "baharsah/dito/users"
 	"baharsah/helper/bcrypt"
+	"baharsah/helper/jawatoken"
 	"baharsah/models"
 	"baharsah/repo"
 	userValdilator "baharsah/valdilator/uservaldilator"
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type handler struct {
@@ -77,6 +80,7 @@ func (h *handler) CreateUser(res http.ResponseWriter, req *http.Request) {
 		Name:     request.FullName,
 		Email:    request.Email,
 		Password: password,
+		Address:  request.Address,
 	}
 	data, err := h.UserRepo.SetUser(user)
 	if err != nil {
@@ -90,6 +94,66 @@ func (h *handler) CreateUser(res http.ResponseWriter, req *http.Request) {
 	response := resultDito.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
 	json.NewEncoder(res).Encode(response)
 	log.Println(data.ID)
+
+}
+
+func (h *handler) AuthUser(res http.ResponseWriter, req *http.Request) {
+
+	res.Header().Set("Content-Type", "application/json")
+	request := new(authDito.LoginRequest)
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		response := resultDito.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+
+	user := models.User{
+		Email:    request.Email,
+		Password: request.Password,
+	}
+
+	user, err := h.UserRepo.GetUser(user)
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		response := resultDito.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+	// log.Println("request", request.Password)
+	// log.Println("user", user.Password)
+
+	isValidBcrypt := bcrypt.CheckPasswordHash(request.Password, user.Password)
+
+	if !isValidBcrypt {
+		res.WriteHeader(http.StatusUnauthorized)
+		response := resultDito.ErrorResult{Code: http.StatusUnauthorized, Message: "Invalid password"}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+
+	claims := jwt.MapClaims{}
+	claims["email"] = user.Email
+	claims["isAdmin"] = user.IsAdmin
+	claims["exp"] = time.Now().Add(time.Hour * 2).Unix() // 2 jam expired
+
+	token, errGenerateToken := jawatoken.GenerateToken(&claims)
+	if errGenerateToken != nil {
+		log.Println(errGenerateToken)
+		log.Println("Unauthorize")
+		return
+	}
+
+	loginResponse := authDito.LoginResponse{
+		Email:    user.Email,
+		Password: user.Password,
+		Token:    token,
+		IsAdmin:  user.IsAdmin,
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	response := resultDito.SuccessResult{Code: http.StatusOK, Data: loginResponse}
+	json.NewEncoder(res).Encode(response)
 
 }
 

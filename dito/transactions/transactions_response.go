@@ -1,11 +1,11 @@
 package transactionsdito
 
 type TransactionsResponse struct {
-	ID         int    `json:"id"`
-	CounterQty uint   `json:"counterQty"`
-	Status     int    `json:"status"`
-	Attachment string `json:"attachment"`
-	Trip       TripRelationResponse
+	ID         int                  `json:"id"`
+	CounterQty uint                 `json:"counterQty"`
+	Status     int                  `json:"status"`
+	Attachment string               `json:"attachment"`
+	Trip       TripRelationResponse `json:"trip"`
 }
 
 type TripRelationResponse struct {
