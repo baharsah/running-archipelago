@@ -135,6 +135,7 @@ func (h *handler) AuthUser(res http.ResponseWriter, req *http.Request) {
 	claims := jwt.MapClaims{}
 	claims["email"] = user.Email
 	claims["isAdmin"] = user.IsAdmin
+	claims["userID"] = user.ID
 	claims["exp"] = time.Now().Add(time.Hour * 2).Unix() // 2 jam expired
 
 	token, errGenerateToken := jawatoken.GenerateToken(&claims)
