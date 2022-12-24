@@ -1,6 +1,6 @@
 package models
 
 type Countries struct {
-	IDCountries uint
+	IDCountries uint `gorm:"primaryKey"`
 	Country     string
 }

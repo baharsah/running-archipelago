@@ -14,10 +14,13 @@ type Trips struct {
 	Description     string
 	ImageID         int
 	ImageTrips      []ImageTrips `gorm:"many2many:trip_image"`
-	CountryID       uint
-	Country         Countries `gorm:"foreignKey:IDCountries"`
+	Country         Countries    `gorm:"foreignKey:CtryID"`
+	CtryID          uint
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 	Price           uint
 	Quantity        uint
+}
+
+type CountriesResponse struct {
 }

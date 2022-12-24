@@ -18,16 +18,16 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type handler struct {
+type userRepoHandler struct {
 	UserRepo repo.UserRepo
 }
 
-func HandlerUser(UserRepo repo.UserRepo) *handler {
-	return &handler{UserRepo}
+func HandlerUser(UserRepo repo.UserRepo) *userRepoHandler {
+	return &userRepoHandler{UserRepo}
 
 }
 
-func (h *handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+func (h *userRepoHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -45,7 +45,7 @@ func (h *handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (h *handler) CreateUser(res http.ResponseWriter, req *http.Request) {
+func (h *userRepoHandler) CreateUser(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 	request := new(authDito.RegisterRequest)
 
@@ -97,7 +97,7 @@ func (h *handler) CreateUser(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func (h *handler) AuthUser(res http.ResponseWriter, req *http.Request) {
+func (h *userRepoHandler) AuthUser(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "application/json")
 	request := new(authDito.LoginRequest)
