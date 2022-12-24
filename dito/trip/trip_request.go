@@ -14,6 +14,4 @@ type TripRequest struct {
 	Price          uint
 	Quota          uint
 	Description    string
-	// Image          string
-	ImageURL []string
 }
