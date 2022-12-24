@@ -3,7 +3,8 @@ package migration
 import (
 	"baharsah/helper/mysql"
 	"baharsah/models"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func RunMigration() {

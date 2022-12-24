@@ -1,17 +1,16 @@
 package tripdito
 
-import "time"
-
 type TripRequest struct {
-	Title          string
-	CountryName    string
-	Accomodation   string
-	Transportation string
-	Eatenary       string
-	Day            int
-	Night          int
-	DateTrip       time.Time
-	Price          uint
-	Quota          uint
-	Description    string
+	DestinationName string `form:"destination_name"`
+	Title           string `form:"title"`
+	CountryID       int    `form:"country_id"`
+	Accomodation    string `form:"accomodation"`
+	DateTrip        string `form:"date_trip"`
+	Transportation  string `json:"transportation"`
+	Eatenary        string `form:"eatenary"`
+	// bagian ini akan dirubah menjadi sebuah tanggal yang di-"moment"-kan untuk menghitung jarak
+	Day         int    `form:"day"`
+	Night       int    `form:"night"`
+	Quota       uint   `form:"quota"`
+	Description string `form:"description"`
 }
