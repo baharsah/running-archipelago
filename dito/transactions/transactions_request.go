@@ -5,4 +5,5 @@ type TransactionsRequest struct {
 	Status     int `json:"status"`
 	Attachment string
 	TripID     uint `json:"tripId"`
+	UserID     uint `json:"userId"`
 }

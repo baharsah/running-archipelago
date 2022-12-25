@@ -6,5 +6,6 @@ func Router(r *mux.Router) {
 
 	UserRoute(r)
 	TripRoute(r)
+	TrxRouter(r)
 
 }

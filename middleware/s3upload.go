@@ -15,8 +15,31 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
+func generateRandomString(length int) string {
+	// Create a slice of runes with the given length.
+	runes := make([]rune, length)
+
+	// Fill the slice with random runes.
+	for i := range runes {
+		runes[i] = randomRune()
+	}
+
+	// Return the slice as a string.
+	return string(runes)
+}
+
+// randomRune returns a random printable ASCII rune.
+func randomRune() rune {
+	// Choose a random number between 48 ('0') and 122 ('z').
+	n := rand.Intn(74) + 48
+
+	// If the number is between 58 and 64, add 7 to make it a uppercase letter.
+	if n >= 58 && n <= 64 {
+		n += 7
+	}
+
+	// Convert the number to a rune.
+	return rune(n)
 }
 
 func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
@@ -68,20 +91,19 @@ func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
 
 			// log.Println(r.MultipartForm.Value)
 
+			// Seed the random number generator with the current time.
 			rand.Seed(time.Now().UnixNano())
 
+			// Generate a random string of 10 characters.
+			randomString := generateRandomString(10)
+
 			// String
-			charset := "abcdefghijklmnopqrstuvwxyz"
+			// charset := "abcdefghijklmnopqrstuvwxyz"
 			// Getting random character
-			c := charset[rand.Intn(len(charset))]
-			c2 := charset[rand.Intn(len(charset))]
-			c3 := charset[rand.Intn(len(charset))]
-			c4 := charset[rand.Intn(len(charset))]
-			c5 := charset[rand.Intn(len(charset))]
 
 			xt := strings.Split(fileHeader.Filename, ".")[1]
 			var sep = "."
-			filename := (string(c) + string(c2) + string(c3) + string(c4) + string(c5) + sep + xt)
+			filename := ("image-" + randomString + sep + xt)
 
 			file, _ := fileHeader.Open()
 
