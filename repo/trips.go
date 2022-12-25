@@ -24,7 +24,7 @@ func (r *repo) GetTrips() ([]models.Trips, error) {
 
 func (r *repo) CreateTrip(trips models.Trips) (models.Trips, error) {
 
-	err := r.db.Debug().Create(trips).Error
+	err := r.db.Debug().Create(&trips).Error
 
 	return trips, err
 

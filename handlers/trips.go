@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,40 +37,50 @@ func (h *tripRepoHandler) GetTrips(res http.ResponseWriter, req *http.Request) {
 
 func (h *tripRepoHandler) SetTrip(res http.ResponseWriter, req *http.Request) {
 	// minta data yang di def dari  dto trip
+	datactx := req.Context().Value("file")
+	filename := datactx.([]string)
+	var collector = filename
+	// request := new(tripdito.TripRequest)
 
-	request := new(tripdito.TripRequest)
+	logrus.Println("Ini Body", req.Body)
 
-	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+	// try to allocate addressable value
+	ctryid, _ := strconv.Atoi(req.FormValue("country_id"))
+	qty, _ := strconv.Atoi(req.FormValue("qty"))
+	day, _ := strconv.Atoi(req.FormValue("day"))
+	night, _ := strconv.Atoi(req.FormValue("night"))
 
-		res.WriteHeader(http.StatusBadRequest)
-		response := resultDito.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(res).Encode(response)
-		return
-
-	}
-
-	validation := validator.New()
-
-	err := validation.Struct(request)
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
-		response := resultDito.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(res).Encode(response)
-		return
+	request := tripdito.TripRequest{
+		DestinationName: req.FormValue("destination_name"),
+		Title:           req.FormValue("title"),
+		CountryID:       ctryid,
+		Accomodation:    req.FormValue("accomodation"),
+		Transportation:  req.FormValue("transportation"),
+		Eatenary:        req.FormValue("eat"),
+		Day:             day,
+		Night:           night,
+		Quota:           uint(qty),
+		Description:     req.FormValue("description"),
+		DateTrip:        req.FormValue("date_trip"),
 	}
 
 	// konversi tanggal dan momen dalam form
 
 	t, err := time.Parse("2006-01-02T15:04:05", request.DateTrip)
-	dayTime := request.Day * 24
-	nightTime := request.Night * 12
+	dayTime := day * 24
+	nightTime := night * 12
 	toDateParse := t.Add(time.Duration(dayTime) + time.Duration(nightTime))
 
 	// ambil meta gambar kedalam database
-	datactx := req.Context().Value("file")
-	filename := datactx.([]models.ImageTrips)
 
-	// rubah data array menjadi struct
+	log.Println(request)
+
+	result := make([]models.ImageTrips, len(collector))
+	for i, v := range collector {
+		result[i] = models.ImageTrips{URL: "https://dumbwayscdnr2.tamaya.my.id/" + v}
+		// logrus.Println("wow", v)
+	}
+	var ref []models.ImageTrips = result
 
 	trip := models.Trips{
 
@@ -83,13 +93,13 @@ func (h *tripRepoHandler) SetTrip(res http.ResponseWriter, req *http.Request) {
 		FromDate:        t,
 		ToDate:          toDateParse,
 		Description:     request.Description,
-		Quantity:        request.Quota,
-		ImageTrips:      filename,
+		Quantity:        uint(qty),
+		ImageTrips:      ref,
 	}
-	logrus.Println(trip)
+
+	logrus.Println("ini hasil jadi", trip)
 
 	tripdata, err := h.TripRepo.CreateTrip(trip)
-	log.Println("ini hasil result", tripdata)
 
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)

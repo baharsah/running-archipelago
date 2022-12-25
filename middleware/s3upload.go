@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"baharsah/models"
 	"context"
 	"encoding/json"
 	"log"
@@ -21,11 +20,10 @@ const (
 )
 
 func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
-	// ctx := context.Background()
 
 	// tangani metode upload multiple data dengan S3 disini
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
+		ctx := r.Context()
 		// Initialize minio client object.
 		minioClient, err := minio.New(API_ENDPOINT, &minio.Options{
 			Creds:  credentials.NewStaticV4(ACCESS_KEY_ID, SECRET_ACCESS_KEY, ""),
@@ -55,7 +53,7 @@ func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
 		// looping upload files
 		for _, fileHeader := range r.MultipartForm.File["images"] {
 
-			log.Println(r.MultipartForm.Value)
+			// log.Println(r.MultipartForm.Value)
 
 			rand.Seed(time.Now().UnixNano())
 
@@ -75,27 +73,27 @@ func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
 			file, _ := fileHeader.Open()
 
 			// Upload file ke S3
-			uploadInfo, err := minioClient.PutObject(context.Background(), "baharsah-s3", filename, file, fileHeader.Size, minio.PutObjectOptions{ContentType: fileHeader.Header.Get("Content-Type")})
+			_, err := minioClient.PutObject(ctx, "baharsah-s3", filename, file, fileHeader.Size, minio.PutObjectOptions{ContentType: fileHeader.Header.Get("Content-Type")})
 			if err != nil {
 				log.Println("Disini")
 				log.Println(err)
 				return
 			}
 			fileNames = append(fileNames, filename)
-			log.Println("Successfully uploaded bytes: ", uploadInfo)
+			log.Println("Successfully uploaded bytes")
 
 		}
 		// log.Println("data", fileNames)
 		//loop to image struct
-		result := make([]models.ImageTrips, len(fileNames))
-		for i, v := range fileNames {
-			result[i] = models.ImageTrips{URL: "https://dumbwayscdnr2.tamaya.my.id" + v}
-			// logrus.Println("wow", v)
-		}
 
 		// add filename to ctx
-		ctx := context.WithValue(r.Context(), "file", result)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		newCtx := context.WithValue(ctx, "file", fileNames)
+
+		// fmt.Println("ini data ref", ref)
+
+		// log.Println("read context here", newCtx)
+
+		next.ServeHTTP(w, r.WithContext(newCtx))
 	})
 
 }
