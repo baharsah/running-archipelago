@@ -9,6 +9,7 @@ import (
 type UserRepo interface {
 	GetUsers() ([]models.User, error)
 	GetUser(models.User) (models.User, error)
+	GetUserID(models.User) (models.User, error)
 	SetUser(models.User) (models.User, error)
 }
 
@@ -37,5 +38,10 @@ func (r *repo) SetUser(user models.User) (models.User, error) {
 func (r *repo) GetUser(data models.User) (models.User, error) {
 	var user models.User
 	err := r.db.Where("email = ? ", data.Email).First(&user).Error
+	return user, err
+}
+func (r *repo) GetUserID(data models.User) (models.User, error) {
+	var user models.User
+	err := r.db.Preload("Transactions").Preload("Transactions.Trips").Preload("Transactions.Trips.Country").Where("id = ? ", data.ID).First(&user).Error
 	return user, err
 }

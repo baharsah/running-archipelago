@@ -12,10 +12,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/mux"
 )
 
 type userRepoHandler struct {
@@ -165,4 +167,20 @@ func convertResponse(u models.User) usersdito.UserResponse {
 		Email: u.Email,
 		// Password: u.Password,
 	}
+}
+
+func (h *userRepoHandler) GetUser(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "application/json")
+	id, _ := strconv.Atoi(mux.Vars(req)["id"])
+	log.Println(id)
+	user, err := h.UserRepo.GetUserID(models.User{ID: id})
+	// h.UserRepo.GetUser(models.User{ID: })
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		response := resultDito.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+	response := resultDito.SuccessResult{Code: http.StatusOK, Data: user}
+	json.NewEncoder(res).Encode(response)
 }
