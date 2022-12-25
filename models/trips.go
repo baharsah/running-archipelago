@@ -13,10 +13,10 @@ type Trips struct {
 	ToDate          time.Time
 	Description     string
 	ImageID         int
-	ImageTrips      []ImageTrips `gorm:"many2many:trip_image"`
+	ImageTrips      []ImageTrips `gorm:"many2many:trip_image;onDelete:CASCADE;onUpdate:CASCADE"`
 	// referencing to CtryID
 	//preloading the Countries struct
-	Country   Countries `gorm:"foreignKey:CtryID"`
+	Country   Countries `gorm:"foreignKey:CtryID;onDelete:CASCADE;onUpdate:CASCADE"`
 	CtryID    uint
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

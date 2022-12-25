@@ -2,7 +2,9 @@ package mysql
 
 import (
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	mysql "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -10,9 +12,13 @@ import (
 var DB *gorm.DB
 
 func DBInit() {
+	errw := godotenv.Load(".env")
+	if errw != nil {
+		log.Fatal("Mysql : Error loading .env file")
+	}
 
 	var err error
-	dsn := "root:testserver@tcp(127.0.0.1:3306)/database?charset=utf8mb4&parseTime=true&loc=Local"
+	dsn := os.Getenv("MYSQL_DSN_CONNECTION_DETAILS")
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {

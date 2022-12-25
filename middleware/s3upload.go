@@ -6,23 +6,36 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-const (
-	API_ENDPOINT      = "bcd797c2633d9e281fe6c0f11c7fa212.r2.cloudflarestorage.com"
-	ACCESS_KEY_ID     = "8902998fd11e1e5232a7311462046333"
-	SECRET_ACCESS_KEY = "9cff4eebc2b40c79cdcb23ecfe48138687990aef35dfa57e6109a266df2b4f1b"
-)
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	var (
+		API_ENDPOINT      = os.Getenv("API_ENDPOINT")
+		ACCESS_KEY_ID     = os.Getenv("ACCESS_KEY_ID")
+		SECRET_ACCESS_KEY = os.Getenv("SECRET_ACCESS_KEY")
+	)
 
 	// tangani metode upload multiple data dengan S3 disini
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		log.Println(API_ENDPOINT)
+		log.Println(ACCESS_KEY_ID)
+		log.Println(SECRET_ACCESS_KEY)
 		ctx := r.Context()
 		// Initialize minio client object.
 		minioClient, err := minio.New(API_ENDPOINT, &minio.Options{
@@ -73,7 +86,7 @@ func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
 			file, _ := fileHeader.Open()
 
 			// Upload file ke S3
-			_, err := minioClient.PutObject(ctx, "baharsah-s3", filename, file, fileHeader.Size, minio.PutObjectOptions{ContentType: fileHeader.Header.Get("Content-Type")})
+			_, err := minioClient.PutObject(ctx, os.Getenv("BUCKET"), filename, file, fileHeader.Size, minio.PutObjectOptions{ContentType: fileHeader.Header.Get("Content-Type")})
 			if err != nil {
 				log.Println("Disini")
 				log.Println(err)

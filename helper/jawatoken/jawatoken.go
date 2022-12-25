@@ -2,11 +2,12 @@ package jawatoken
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
-var KodeNuklir = "KodeNuklirBerbahaya"
+var KodeNuklir = os.Getenv("SECRET_PASSWORD_KEY")
 
 func GenerateToken(claims *jwt.MapClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

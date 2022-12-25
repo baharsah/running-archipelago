@@ -8,9 +8,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,6 +39,12 @@ func (h *tripRepoHandler) GetTrips(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *tripRepoHandler) SetTrip(res http.ResponseWriter, req *http.Request) {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	res.Header().Set("Content-Type", "application/json")
+
 	// minta data yang di def dari  dto trip
 	datactx := req.Context().Value("file")
 	filename := datactx.([]string)
@@ -77,7 +86,7 @@ func (h *tripRepoHandler) SetTrip(res http.ResponseWriter, req *http.Request) {
 
 	result := make([]models.ImageTrips, len(collector))
 	for i, v := range collector {
-		result[i] = models.ImageTrips{URL: "https://dumbwayscdnr2.tamaya.my.id/" + v}
+		result[i] = models.ImageTrips{URL: os.Getenv("CDN_URL") + v}
 		// logrus.Println("wow", v)
 	}
 	var ref []models.ImageTrips = result
@@ -110,6 +119,33 @@ func (h *tripRepoHandler) SetTrip(res http.ResponseWriter, req *http.Request) {
 
 	res.WriteHeader(http.StatusOK)
 	response := resultDito.SuccessResult{Code: http.StatusOK, Data: tripdata}
+	json.NewEncoder(res).Encode(response)
+
+}
+
+func (h *tripRepoHandler) DeleteTrip(res http.ResponseWriter, req *http.Request) {
+
+	idint, _ := strconv.Atoi(mux.Vars(req)["id"])
+	trip, err := h.TripRepo.GetTrip(int(idint))
+
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		response := resultDito.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+
+	data, errv := h.TripRepo.DeleteTrip(trip)
+
+	if errv != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		response := resultDito.ErrorResult{Code: http.StatusInternalServerError, Message: errv.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+
+	res.WriteHeader(http.StatusOK)
+	response := resultDito.SuccessResult{Code: http.StatusOK, Data: data}
 	json.NewEncoder(res).Encode(response)
 
 }
