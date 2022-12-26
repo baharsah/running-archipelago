@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -95,7 +96,11 @@ func UploadFilesTrip(next http.HandlerFunc) http.HandlerFunc {
 			rand.Seed(time.Now().UnixNano())
 
 			// Generate a random string of 10 characters.
-			randomString := generateRandomString(10)
+			// randomString := generateRandomString(10)
+			// Generate a random alphanumeric string with a length of 10
+			b := make([]byte, 10)
+			rand.Read(b)
+			randomString := fmt.Sprintf("%x", b)
 
 			// String
 			// charset := "abcdefghijklmnopqrstuvwxyz"
