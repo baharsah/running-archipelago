@@ -10,7 +10,7 @@ type CountryRepo interface {
 	SetCountry(models.Countries) (models.Countries, error)
 	GetCountry(id int) (models.Countries, error)
 	GetCounties() ([]models.Countries, error)
-	// UpdateCountry(models.Countries) (models.Countries, error)
+	UpdateCountry(models.Countries) (models.Countries, error)
 	DeleteCountry(models.Countries) (models.Countries, error)
 }
 
@@ -40,5 +40,10 @@ func (r *repo) GetCountry(id int) (models.Countries, error) {
 
 func (r *repo) DeleteCountry(ctry models.Countries) (models.Countries, error) {
 	err := r.db.Debug().Delete(&ctry).Error
+	return ctry, err
+}
+
+func (r *repo) UpdateCountry(ctry models.Countries) (models.Countries, error) {
+	err := r.db.Debug().Model(&ctry).Updates(&ctry).Error
 	return ctry, err
 }

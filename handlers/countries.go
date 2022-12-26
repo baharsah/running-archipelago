@@ -83,3 +83,31 @@ func (h *countriesRepoHandler) DeleteCountry(res http.ResponseWriter, req *http.
 	response := resultDito.SuccessResult{Code: http.StatusOK}
 	json.NewEncoder(res).Encode(response)
 }
+
+func (h *countriesRepoHandler) UpdateCountry(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "application/json")
+	id, _ := strconv.Atoi(mux.Vars(req)["id"])
+	request := new(countriesdito.CountryRequest)
+	if err := json.NewDecoder(req.Body).Decode(request); err != nil {
+		response := resultDito.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+	co := countriesdito.CountryRequest{
+		Country:   request.Country,
+		CountryID: id,
+	}
+	cor := models.Countries{
+		Country:     co.Country,
+		IDCountries: uint(co.CountryID),
+	}
+
+	country, err := h.CountryRepo.UpdateCountry(cor)
+	if err != nil {
+		response := resultDito.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(res).Encode(response)
+		return
+	}
+	response := resultDito.SuccessResult{Code: http.StatusOK, Data: country}
+	json.NewEncoder(res).Encode(response)
+}

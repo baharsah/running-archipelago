@@ -18,4 +18,5 @@ func CtryRouter(r *mux.Router) {
 	r.HandleFunc("/country", middleware.Auth(h.GetCountries)).Methods(http.MethodGet)
 	r.HandleFunc("/country/{id}", middleware.Auth(h.GetCountry)).Methods(http.MethodGet)
 	r.HandleFunc("/country/{id}", middleware.Auth(h.DeleteCountry)).Methods(http.MethodDelete)
+	r.HandleFunc("/country/{id}", middleware.Auth(h.UpdateCountry)).Methods(http.MethodPatch)
 }
