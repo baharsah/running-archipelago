@@ -11,7 +11,7 @@ var KodeNuklir = os.Getenv("SECRET_PASSWORD_KEY")
 
 func GenerateToken(claims *jwt.MapClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	webtoken, err := token.SignedString([]byte(KodeNuklir))
+	webtoken, err := token.SignedString([]byte(os.Getenv("SECRET_PASSWORD_KEY")))
 	if err != nil {
 		return "", err
 	}
@@ -23,7 +23,7 @@ func VerifyToken(tokenString string) (*jwt.Token, error) {
 		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(KodeNuklir), nil
+		return []byte(os.Getenv("SECRET_PASSWORD_KEY")), nil
 	})
 
 	if err != nil {
